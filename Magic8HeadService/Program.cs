@@ -12,6 +12,8 @@ using TwitchLib.Client;
 using TwitchLib.Client.Models;
 using TwitchLib.Communication.Clients;
 using TwitchLib.Communication.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Magic8HeadService
 {
@@ -77,6 +79,12 @@ namespace Magic8HeadService
                                 .AsImplementedInterfaces()
                                 .WithTransientLifetime());
 
+                    services.AddOptions<List<string>>("CommandNames").Configure<IServiceProvider>((str, svc) =>
+                    {
+                        var commandNames = svc.GetServices<ICommandMbhToTwitch>().Select(cmd => cmd.Name);
+                        str.AddRange(commandNames);
+                    });
+
                     services.AddScoped<ISayingService, SayingService>();
                     services.AddScoped<ISayingResponse, SayingResponse>();
                     services.AddScoped<IDadJokeService, DadJokeService>();
@@ -84,7 +92,7 @@ namespace Magic8HeadService
 
                     services.AddHostedService<Worker>();
 
-                    Console.WriteLine($"services has a count: {services.Count}");
+                    services.AddScoped<CommandCommand>();
                 });
     }
 }
