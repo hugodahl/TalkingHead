@@ -81,8 +81,19 @@ namespace Magic8HeadService
 
                     services.AddOptions<List<string>>("CommandNames").Configure<IServiceProvider>((str, svc) =>
                     {
-                        var commandNames = svc.GetServices<ICommandMbhToTwitch>().Select(cmd => cmd.Name);
-                        str.AddRange(commandNames);
+                        try
+                        {
+                            // the next command dies and the totally dumps out....
+                            // the catch isn't hit either.
+                            var commandObjects = svc.GetServices<ICommandMbhToTwitch>();
+                            //.Select(cmd => cmd.Name);
+                            var commandNames = commandObjects.Select(cmd => cmd.Name);
+                            str.AddRange(commandNames);
+                        }
+                        catch (Exception ex)
+                        {
+                            str.Add($"Execption: {ex.Message}");
+                        }
                     });
 
                     services.AddScoped<ISayingService, SayingService>();
